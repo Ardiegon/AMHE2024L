@@ -1,16 +1,15 @@
 import numpy as np
-import utils.algorithmic as alg
 from dataclasses import dataclass
 
+import utils.algorithmic as alg 
+from agents.base import BaseAgent, BaseAgentState
 from configs.NLSHADERSPconfig import default_config
 from utils.misc import print_clean, are_any_arrays_equal
 
 EPSILON = 1e-8
 
 @dataclass
-class StateNLSHADERSP:
-    timestep: int
-    population: np.ndarray
+class StateNLSHADERSP(BaseAgentState):
     archive: np.ndarray
     archive_probability: float
     NP: int
@@ -19,23 +18,10 @@ class StateNLSHADERSP:
     M_Cr: np.ndarray
     Mk: int
 
-class NLSHADERSP:
+class NLSHADERSP(BaseAgent):
     def __init__(self, objective, population=None, config = {}) -> None:
-        self.config = default_config() | config
-        self.objective = objective
-        population = population if population is not None else self._init_population()
-        self.history = [self._init_state(population)]
+        super().__init__(objective, population, config = default_config() | config)
 
-    def _init_population(self):
-        n_dims = self.config["pop_size"]
-        n_samples = self.config["pop_dims"]
-        mu = self.config["new_population_mean"]
-        sigma = self.config["new_population_variance"]
-        population = np.random.normal(mu, sigma, (n_dims, n_samples))
-        q_population = self._eval(population)
-        sorted_args = np.argsort(q_population)
-        return population[sorted_args]
-    
     def _init_state(self, population):
         mCr = np.ones(self.config["window_size"]) * self.config["memory_Cr"]
         mF = np.ones(self.config["window_size"]) * self.config["memory_F"]
@@ -43,11 +29,6 @@ class NLSHADERSP:
         return StateNLSHADERSP(0, population, archive, self.config["archive_probability"], 
                                self.config["pop_size"], self.config["archive_size"],
                                mF, mCr, 0)
-    
-    def _eval(self, pop):
-        if len(pop.shape) == 1: # single specimen
-            pop = pop[None,:]
-        return self.objective(pop)
 
     def _make_step(self, state, H, NPmin, NPmax, max_iters, best_part):
         # 6
@@ -145,16 +126,3 @@ class NLSHADERSP:
         self.dump_history_to_file(f"src/checkpoints/lastnlshadersp.npy")
         _, sorted_pop = alg.sort_pop(state.population, self._eval)
         return alg.best_pop_mean(sorted_pop, 1)
-
-    def get_history_means(self):
-        means = []
-        for state in self.history:
-            means.append(np.mean(state.population, axis=0))
-        return np.array(means)
-    
-    def dump_history_to_file(self, file_path):
-        np.save(file_path, np.array(self.history))
-
-    def load_history_from_file(self, file_path):
-        self.history = np.load(file_path, allow_pickle=True)
-    

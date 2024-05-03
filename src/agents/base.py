@@ -9,7 +9,7 @@ class BaseAgentState(ABC):
     population: np.ndarray
 
 class BaseAgent(ABC):
-    def __init__(self, objective, population=None, config = {}) -> None:
+    def __init__(self, objective: callable, population: np.ndarray=None, config: dict={}) -> None:
         self.config = config
         self.objective = objective
         population = population if population is not None else self._init_population()
@@ -24,32 +24,32 @@ class BaseAgent(ABC):
         _, population = alg.sort_pop(population, self._eval)
         return population
     
-    def _eval(self, pop):
+    def _eval(self, pop: np.ndarray)->np.ndarray:
         if len(pop.shape) == 1: # single specimen
             pop = pop[None,:]
         return self.objective(pop)
 
-    def get_history_means(self):
+    def get_history_means(self)->np.ndarray:
         means = []
         for state in self.history:
             means.append(np.mean(state.population, axis=0))
         return np.array(means)
     
-    def dump_history_to_file(self, file_path):
+    def dump_history_to_file(self, file_path:str)->None:
         np.save(file_path, np.array(self.history))
 
-    def load_history_from_file(self, file_path):
+    def load_history_from_file(self, file_path:str)->None:
         self.history = np.load(file_path, allow_pickle=True)
     
-    @abstractmethod()
-    def _init_state(self, population)->BaseAgentState:
+    @abstractmethod
+    def _init_state(self, population:np.ndarray)->BaseAgentState:
         """
         Define AgentState dataclass, which will hold timestep dependent parameters (among others timestep and population).
         Here, return object of this AgentState class, initialized for timestep 0.  
         """
         pass
         
-    @abstractmethod()
+    @abstractmethod
     def _make_step(self, *args, **kwargs)->tuple:
        """
        Single Step of your future BBO algorithm
@@ -58,6 +58,11 @@ class BaseAgent(ABC):
        """
        pass
 
-    @abstractmethod()
+    @abstractmethod
     def run(self)->np.ndarray:
+        """
+        Loads constant in time parameters from config and passes them to next timesteps until finished.
+        Should return best specimen after end conditions are met.
+        Try to use dump_history_to_file and clean_print for maintaining homogenity.
+        """
         pass

@@ -1,32 +1,18 @@
 import numpy as np
-import utils.algorithmic as alg 
 from dataclasses import dataclass
 
+import utils.algorithmic as alg 
+from agents.base import BaseAgent, BaseAgentState
 from configs.DESconfig import default_config
 from utils.misc import print_clean
 
 @dataclass
-class StateDES:
-    timestep: int
-    population: np.ndarray
+class StateDES(BaseAgentState):
     delta: np.ndarray 
 
-class DES:
+class DES(BaseAgent):
     def __init__(self, objective, population=None, config = {}) -> None:
-        self.config = default_config() | config
-        self.objective = objective
-        population = population if population is not None else self._init_population()
-        self.history = [self._init_state(population)]
-
-    def _init_population(self):
-        n_dims = self.config["pop_size"]
-        n_samples = self.config["pop_dims"]
-        mu = self.config["new_population_mean"]
-        sigma = self.config["new_population_variance"]
-        population = np.random.normal(mu, sigma, (n_dims, n_samples))
-        q_population = self._eval(population)
-        sorted_args = np.argsort(q_population)
-        return population[sorted_args]
+        super().__init__(objective, population, config = default_config() | config)
     
     def _init_state(self, population):
         return StateDES(1, population, np.ones_like(population[0]) * self.config["delta"])
@@ -45,11 +31,6 @@ class DES:
             sample = f * (self.history[-hw].population[j,:] - self.history[-hw].population[k,:]) + next_delta * d * np.random.normal(0,1)
             next_pop.append( (best_mean+ sample + e * np.random.normal(0,1, sample.shape))[None, :])
         return np.concatenate(next_pop, axis=0), next_delta, best_mean
-
-    def _eval(self, pop):
-        if len(pop.shape) == 1: # single specimen
-            pop = pop[None,:]
-        return self.objective(pop)
 
     def run(self):
         max_n_epochs = self.config["max_n_epochs"]
@@ -75,18 +56,4 @@ class DES:
         self.dump_history_to_file(f"src/checkpoints/lastDES.npy")
         _, sorted_pop = alg.sort_pop(state.population, self._eval)
         return alg.best_pop_mean(sorted_pop, 1)
-
-    def get_history_means(self):
-        means = []
-        for state in self.history:
-            means.append(np.mean(state.population, axis=0))
-        return np.array(means)
     
-    def dump_history_to_file(self, file_path):
-        np.save(file_path, np.array(self.history))
-
-    def load_history_from_file(self, file_path):
-        self.history = np.load(file_path, allow_pickle=True)
-
-
-        
