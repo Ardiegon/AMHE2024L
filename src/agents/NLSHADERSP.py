@@ -1,8 +1,9 @@
 import numpy as np
+import utils.algorithmic as alg
 from dataclasses import dataclass
 
 from configs.NLSHADERSPconfig import default_config
-from utils.misc import print_clean
+from utils.misc import print_clean, are_any_arrays_equal
 
 EPSILON = 1e-8
 
@@ -42,6 +43,11 @@ class NLSHADERSP:
         return StateNLSHADERSP(0, population, archive, self.config["archive_probability"], 
                                self.config["pop_size"], self.config["archive_size"],
                                mF, mCr, 0)
+    
+    def _eval(self, pop):
+        if len(pop.shape) == 1: # single specimen
+            pop = pop[None,:]
+        return self.objective(pop)
 
     def _make_step(self, state, H, NPmin, NPmax, max_iters, best_part):
         # 6
@@ -49,11 +55,7 @@ class NLSHADERSP:
         S_Cr = []
         q_deltas = []
         # 7
-        pop = state.population
-        q_pop = self._eval(pop)
-        sorted_args = np.argsort(q_pop)
-        pop = pop[sorted_args]
-        q_pop = q_pop[sorted_args]
+        q_pop, pop = alg.sort_pop(state.population, self._eval)
         # 8 - 16
         realizations_F = []
         realizations_Cr = []
@@ -61,12 +63,12 @@ class NLSHADERSP:
             r = np.random.randint(0, H)
             realizations_Cr.append(np.clip(np.random.normal(state.M_Cr[r], 0.1), 0.0, 1.0))
             while True:
-                F_i = self._nonstandard_cauchy(state.M_F[r], 0.1)
+                F_i = alg.nonstandard_cauchy(state.M_F[r], 0.1)
                 if F_i > 0:
                     realizations_F.append(min(F_i, 1))
                     break        
         # 17
-        realizations_Cr = np.sort(realizations_Cr) # W tekście wytłumaczne że according to fitness to w praktyce mniejsze pierwsze jeśli populację mamy posortowaną
+        realizations_Cr = np.sort(realizations_Cr) # W tekście wytłumaczone że according to fitness to w praktyce mniejsze pierwsze jeśli populację mamy posortowaną
         # 18 - 42
         for i in range(state.NP):
             archive_used = False
@@ -79,14 +81,14 @@ class NLSHADERSP:
                 else:
                     archive_used = True
                     r2 = state.archive[np.random.randint(state.archive.shape[0])]
-                if not self._are_any_arrays_equal([current, pbest, r1, r2]):
+                if not are_any_arrays_equal([current, pbest, r1, r2]):
                     break
             new = current + realizations_F[i]*(pbest-current) + realizations_F[i]*(r1-r2)
-            Crb = self._update_Crb(state.timestep, max_iters)
+            Crb = alg.update_Crb(state.timestep, max_iters)
             if np.random.rand() < 0.5:
-                new = self._binomial_crossover(current, new, Crb)
+                new = alg.binomial_crossover(current, new, Crb)
             else:
-                new = self._exponential_crossover(current, new, realizations_Cr[i])
+                new = alg.exponential_crossover(current, new, realizations_Cr[i])
             q_new = self._eval(new)
             q_current = q_pop[i]
             if q_new < q_current:
@@ -99,7 +101,7 @@ class NLSHADERSP:
                 S_Cr.append(realizations_Cr[i])
                 q_deltas.append([q_current - q_new, archive_used])
         # 43
-        new_NP = self._nlpsr(state.timestep, max_iters, NPmin, NPmax)
+        new_NP = alg.nlpsr(state.timestep, max_iters, NPmin, NPmax)
         new_NA = int(2.1*new_NP)
         # 44-49
         if len(state.archive) > new_NA:
@@ -114,9 +116,9 @@ class NLSHADERSP:
         S_F = np.asarray(S_F, dtype=object)
         S_Cr = np.asarray(S_Cr, dtype=object)
         if len(q_deltas) != 0:
-            new_archive_probability = self._calculate_archive_probability(q_deltas)
-            new_M_F = self._calculate_new_memory(state.Mk, state.M_F, S_F, q_deltas)
-            new_M_Cr = self._calculate_new_memory(state.Mk, state.M_Cr, S_Cr, q_deltas)
+            new_archive_probability = alg.calculate_archive_probability(q_deltas)
+            new_M_F = alg.calculate_new_memory(state.Mk, state.M_F, S_F, q_deltas)
+            new_M_Cr = alg.calculate_new_memory(state.Mk, state.M_Cr, S_Cr, q_deltas)
         else:
             new_archive_probability = state.archive_probability
             new_M_F = state.M_F
@@ -124,68 +126,6 @@ class NLSHADERSP:
         new_Mk = (state.Mk+1)%H
         new_timestep = state.timestep + 1
         return new_timestep, pop, new_archive, new_archive_probability, new_NP, new_NA, new_M_F, new_M_Cr, new_Mk
-
-    def _calculate_archive_probability(self, deltas):
-        deltas_archive = deltas[deltas[:,1]==True, 0]
-        deltas_pop = deltas[deltas[:,1]==False, 0]
-        sum_da = np.sum(deltas_archive)
-        sum_dp = np.sum(deltas_pop)
-        ratio_da = len(deltas_archive)/len(deltas)
-        ratio_dp = len(deltas_pop)/len(deltas)
-        return np.clip(sum_da/(ratio_da+EPSILON)/(sum_da/(ratio_da+EPSILON) + sum_dp/(ratio_dp+EPSILON)), 0.1, 0.9)
-
-    def _calculate_new_memory(self, k, memory, samples, deltas):
-        deltas = deltas[:,0]
-        weights = deltas/np.sum(deltas)
-        mean_w_L = np.sum(weights*(samples**2))/np.sum(weights*samples)
-        memory[k] = (0.5 * memory[k] + 0.5 * mean_w_L).item()
-        return memory
-
-    def _binomial_crossover(self, x, u, Crb):
-        new_specimen = np.copy(x)
-        jrand = np.random.randint(0,len(new_specimen))
-        for i in range(len(new_specimen)):
-            if np.random.rand() < Crb or i == jrand:
-                new_specimen[i] = u[i]
-        return new_specimen
-
-    def _exponential_crossover(self, x, u, Cr_i):
-        new_specimen = np.copy(x)
-        n1 = np.random.randint(0,len(new_specimen)-1)
-        n2 = 1
-        while True:
-            if np.random.rand()<Cr_i and n1+n2<len(new_specimen):
-                n2+=1
-            else:
-                break
-        new_specimen[n1:n1+n2] = u[n1:n1+n2]
-        return new_specimen
-
-    def _nlpsr(self, g, max_iters, NPmin, NPmax):
-        nfe_r = g/max_iters
-        return round((NPmin-NPmax)*(nfe_r**(1-nfe_r))+NPmax)
-    
-    def _update_Crb(self, g, max_iters):
-        if g < 0.5 * max_iters:
-            return 0
-        else: 
-            return 2*(g/max_iters-0.5) # W artykule błąd we wzorze, w tekście jest mowa o ciągłości której we wzorze nie ma 
-
-    def _nonstandard_cauchy(self, mean = 0.0, gamma = 1.0):
-        return gamma * np.random.standard_cauchy(1) + mean
-
-    def _are_any_arrays_equal(self, arrays):
-        num_arrays = len(arrays)
-        for i in range(num_arrays):
-            for j in range(i + 1, num_arrays):
-                if np.array_equal(arrays[i], arrays[j]):
-                    return True
-        return False
-
-    def _eval(self, pop):
-        if len(pop.shape) == 1: # single specimen
-            pop = pop[None,:]
-        return self.objective(pop)
     
     def run(self):
         H = self.config["window_size"]
@@ -201,8 +141,10 @@ class NLSHADERSP:
             state = StateNLSHADERSP(*step_result)
             self.history.append(state)
             if state.timestep%100==0:
-                print_clean(f"Timestep: {state.timestep}\nCurrent Mean: {np.mean(state.population, axis=0)}\nEval: {self._eval(np.mean(state.population, axis=0))}")
+                print_clean(f"Timestep: {state.timestep}\nCurrent Mean: {alg.pop_mean(state.population)}\nEval: {self._eval(alg.pop_mean(state.population))}")
         self.dump_history_to_file(f"src/checkpoints/lastnlshadersp.npy")
+        _, sorted_pop = alg.sort_pop(state.population, self._eval)
+        return alg.best_pop_mean(sorted_pop, 1)
 
     def get_history_means(self):
         means = []
