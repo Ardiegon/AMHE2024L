@@ -1,5 +1,5 @@
 import numpy as np
-from pathlib import Path
+import utils.algorithmic as alg 
 
 from configs.DESconfig import default_config
 from utils.misc import print_clean
@@ -15,7 +15,6 @@ class DES:
     def __init__(self, objective, population=None, config = {}) -> None:
         self.config = default_config() | config
         self.objective = objective
-        self.once = True
         population = population if population is not None else self._init_population()
         self.history = [self._init_state(population)]
 
@@ -41,7 +40,7 @@ class DES:
         sorted_args = np.argsort(q_population)
         sorted_pop = state.population[sorted_args]
 
-        best_mean = np.mean(sorted_pop[:mi, :], axis=0)
+        best_mean = alg.pop_mean(sorted_pop, mi)
         next_delta = (1 - c) * state.delta + c * (best_mean - pop_mean)
 
         next_pop = []
@@ -56,13 +55,6 @@ class DES:
         if len(pop.shape) == 1: # single specimen
             pop = pop[None,:]
         return self.objective(pop)
-    
-    def _calc_end_value(self, population, best_mean):
-        sum = 0.0
-        for dimension in range(population.shape[1]):
-            sum += np.sqrt(np.sum([(a-best_mean[dimension])**2 for a in population[:,dimension]]))
-        return sum/population.shape[1]
-
 
     def run(self):
         max_n_epochs = self.config["max_n_epochs"]
@@ -79,7 +71,7 @@ class DES:
         end_cond_value = float("inf")
         while end_cond_value >= e and t < max_n_epochs:
             next_pop, next_delta, best_mean = self._make_step(state, mi, c, f, d, h, e)
-            end_cond_value = self._calc_end_value(next_pop, best_mean)
+            end_cond_value = alg.calc_end_value(next_pop, best_mean)
             t = t+1
             state = StateDES(t, next_pop, next_delta)
             self.history.append(state)

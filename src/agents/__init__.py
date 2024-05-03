@@ -1,8 +1,11 @@
 from agents.DES import DES
+from agents.NLSHADERSP import NLSHADERSP
+from agents.AMALGATION import AMALGATION
 
 AGENTS = {
     "des": DES,
-    "nl-shade-rsp": NotImplementedError
+    "nlshadersp": NLSHADERSP,
+    "amalgation": AMALGATION
 }
 
 def get_agent(name):

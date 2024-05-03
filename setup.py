@@ -8,9 +8,8 @@ setup(
     packages=find_packages("src"),  # Find packages in src directory
     package_dir={"": "src"},  # Treat "src" directory as the source of packages
     install_requires=[
-        'matplotlib',
-        'numpy',
-        "tmux"
+        'matplotlib==3.8.4',
+        'numpy==1.21.1'
     ],
     entry_points={
         "console_scripts": []
