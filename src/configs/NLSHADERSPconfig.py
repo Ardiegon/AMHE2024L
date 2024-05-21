@@ -1,4 +1,4 @@
-def default_config(pop_dims=2):
+def default_config(pop_dims=10):
     population_max = 30 * pop_dims
     population_min = 0.25 * population_max
     population_size = population_max

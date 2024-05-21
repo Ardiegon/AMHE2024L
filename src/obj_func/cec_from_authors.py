@@ -5,6 +5,8 @@ Created on Sat Jan  1 16:49:21 2022
 @author: Abhishek Kumar
 @email: abhishek.kumar.eee13@iitbhu.ac.in
 """
+from pathlib import Path
+
 import numpy as np
 
 INF = 1.0e99
@@ -13,6 +15,8 @@ E  = 2.7182818284590452353602874713526625
 PI = 3.1415926535897932384626433832795029
 
 
+def get_project_root():
+  return Path(__file__).parent.parent.parent
 
 def ellips_func(x, nx, Os, Mr, s_flag, r_flag):
   f = 0.0
@@ -193,28 +197,29 @@ def step_rastrigin_func(x, nx, Os, Mr, s_flag, r_flag):
     f += (z[i]*z[i] - 10.0*np.cos(2.0*PI*z[i]) + 10.0)
   return f
 
-# def levy_func(x, nx, Os, Mr, s_flag, r_flag):
-  
-#   f = 0.0
-#   z = sr_func (x, nx, Os, Mr,1.0, s_flag, r_flag)
 
-#   w = [1]*nx
+def levy_func(x, nx, Os, Mr, s_flag, r_flag):
 
-#   sum1= 0.0
-#   for i in range(nx):
-# 	   w[i] = 1.0 + (z[i] - 0.0)/4.0
-#   term1 = pow((np.sin(PI*w[0])),2)
-#   term3 = pow((w[nx-1]-1),2) * (1+pow((np.sin(2*PI*w[nx-1])),2))
+  f = 0.0
+  z = sr_func (x, nx, Os, Mr,1.0, s_flag, r_flag)
 
-#   Sum = 0.0
+  w = [1]*nx
 
-#   for i in range(nx - 1):
-#     wi = w[i]
-#     newv = pow((wi-1),2) * (1+10*pow((np.sin(PI*wi+1)),2))
-#     Sum = Sum + newv
-#   f = term1 + Sum + term3
-#   del(w)
-#   return f
+  sum1= 0.0
+  for i in range(nx):
+	   w[i] = 1.0 + (z[i] - 0.0)/4.0
+  term1 = pow((np.sin(PI*w[0])),2)
+  term3 = pow((w[nx-1]-1),2) * (1+pow((np.sin(2*PI*w[nx-1])),2))
+
+  Sum = 0.0
+
+  for i in range(nx - 1):
+    wi = w[i]
+    newv = pow((wi-1),2) * (1+10*pow((np.sin(PI*wi+1)),2))
+    Sum = Sum + newv
+  f = term1 + Sum + term3
+  del(w)
+  return f
 
 def zakharov_func(x, nx, Os, Mr, s_flag, r_flag):
   z = sr_func (x, nx, Os, Mr,1.0, s_flag, r_flag)
@@ -580,7 +585,7 @@ def cec22_test_func(x, nx, mx, func_num):
     
     # Load M matrix
     
-    FileName = 'src/obj_func/input_data/M_%d_D%d.txt'%(func_num, nx)
+    FileName = str(get_project_root()) + '/src/obj_func/input_data/M_%d_D%d.txt'%(func_num, nx)
     try:
       M = np.loadtxt(FileName)
     except:
@@ -590,7 +595,7 @@ def cec22_test_func(x, nx, mx, func_num):
     del(FileName)
     
     # Shift data
-    FileName = "src/obj_func/input_data/shift_data_%d.txt" %func_num
+    FileName = str(get_project_root()) + "/src/obj_func/input_data/shift_data_%d.txt" %func_num
     try:
       OShift_temp = np.loadtxt(FileName)
     except:
@@ -613,7 +618,7 @@ def cec22_test_func(x, nx, mx, func_num):
     
     
     if (func_num >= 6) & (func_num <=8):
-        FileName = "src/obj_func/input_data/shuffle_data_%d_D%d.txt" %(func_num, nx)
+        FileName = str(get_project_root()) + "/src/obj_func/input_data/shuffle_data_%d_D%d.txt" %(func_num, nx)
         try:
           SS = np.loadtxt(FileName)
         except:

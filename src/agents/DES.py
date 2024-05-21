@@ -1,10 +1,10 @@
 import numpy as np
 from dataclasses import dataclass
 
-import utils.algorithmic as alg 
-from agents.base import BaseAgent, BaseAgentState
-from configs.DESconfig import default_config
-from utils.misc import print_clean
+import src.utils.algorithmic as alg
+from src.agents.base import BaseAgent, BaseAgentState
+from src.configs.DESconfig import default_config
+from src.utils.misc import print_clean
 
 @dataclass
 class StateDES(BaseAgentState):

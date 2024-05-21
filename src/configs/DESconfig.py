@@ -1,6 +1,6 @@
 from math import sqrt
 
-def default_config(pop_dims=2):
+def default_config(pop_dims=10):
     maxFES = pop_dims*10000
     pop_size = pop_dims*5
     offspring_size = pop_size//2

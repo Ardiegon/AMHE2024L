@@ -1,7 +1,8 @@
 import numpy as np
-import utils.algorithmic as alg
+import src.utils.algorithmic as alg
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
+
 
 @dataclass
 class BaseAgentState(ABC):

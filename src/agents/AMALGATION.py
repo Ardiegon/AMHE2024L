@@ -1,10 +1,9 @@
 import numpy as np
 from dataclasses import dataclass
 
-import utils.algorithmic as alg 
-from agents.base import BaseAgent, BaseAgentState
-from configs.AMALGATIONconfig import default_config
-from utils.misc import print_clean
+from src.agents.base import BaseAgent, BaseAgentState
+from src.configs.AMALGATIONconfig import default_config
+from src.utils.misc import print_clean
 
 @dataclass
 class StateAMALGATION(BaseAgentState):

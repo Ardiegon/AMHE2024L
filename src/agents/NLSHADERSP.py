@@ -1,10 +1,10 @@
 import numpy as np
 from dataclasses import dataclass
 
-import utils.algorithmic as alg 
-from agents.base import BaseAgent, BaseAgentState
-from configs.NLSHADERSPconfig import default_config
-from utils.misc import print_clean, are_any_arrays_equal
+import src.utils.algorithmic as alg
+from src.agents.base import BaseAgent, BaseAgentState
+from src.configs.NLSHADERSPconfig import default_config
+from src.utils.misc import print_clean, are_any_arrays_equal
 
 EPSILON = 1e-8
 

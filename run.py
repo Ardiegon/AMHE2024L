@@ -1,8 +1,8 @@
 import argparse
 import numpy as np
 
-from agents import get_agent, agent_choices
-from obj_func import get_objective, objective_choices
+from src.agents.agents_dictionary import get_agent, agent_choices
+from src.obj_func.function_dictionary import get_objective, objective_choices
 
 def parse_args():
     parser = argparse.ArgumentParser()

@@ -1,5 +1,19 @@
 import os 
 import numpy as np
+from functools import partial
+from src.obj_func.cec_from_authors import cec22_test_func
+from pathlib import Path
+
+def create_evaluate_cec_function(function_number):
+    return partial(cec_wrapper, function_number=function_number)
+
+def cec_wrapper(x, function_number):
+    mx, nx = np.shape(x)
+    value = np.zeros((mx,))
+    for i in range(mx):
+        value[i] = cec22_test_func(x[i, :], nx, 1, function_number)
+    # return cec22_test_func(x, len(x), 1, function_number)
+    return value
 
 def clear_console()->None:
     if os.name == 'nt':  
