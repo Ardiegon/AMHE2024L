@@ -4,6 +4,12 @@ import numpy as np
 from src.agents.agents_dictionary import get_agent, agent_choices
 from src.obj_func.function_dictionary import get_objective, objective_choices
 
+
+# TODO
+# sensowne logowanie - zależnie od tego jakie badania chcemy przeprowadzić
+# budżetowanie na liczbę ewaluacji - nice to have
+# configi na klasy - nice to have
+
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("-a", "--agent", type=str, required=True, choices=agent_choices(),

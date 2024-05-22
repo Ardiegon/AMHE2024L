@@ -8,6 +8,7 @@ from src.utils.misc import print_clean, are_any_arrays_equal
 
 EPSILON = 1e-8
 
+
 @dataclass
 class StateNLSHADERSP(BaseAgentState):
     archive: np.ndarray
@@ -17,6 +18,7 @@ class StateNLSHADERSP(BaseAgentState):
     M_F: np.ndarray 
     M_Cr: np.ndarray
     Mk: int
+
 
 class NLSHADERSP(BaseAgent):
     def __init__(self, objective, population=None, config = {}) -> None:
@@ -123,6 +125,7 @@ class NLSHADERSP(BaseAgent):
             self.history.append(state)
             if state.timestep%100==0:
                 print_clean(f"Timestep: {state.timestep}\nCurrent Mean: {alg.pop_mean(state.population)}\nEval: {self._eval(alg.pop_mean(state.population))}")
+
         self.dump_history_to_file(f"src/checkpoints/lastnlshadersp.npy")
         _, sorted_pop = alg.sort_pop(state.population, self._eval)
         return alg.best_pop_mean(sorted_pop, 1)

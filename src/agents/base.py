@@ -9,19 +9,20 @@ class BaseAgentState(ABC):
     timestep: int
     population: np.ndarray
 
+
 class BaseAgent(ABC):
-    def __init__(self, objective: callable, population: np.ndarray=None, config: dict={}) -> None:
+    def __init__(self, objective: callable, population: np.ndarray = None, config: dict = {}) -> None:
         self.config = config
         self.objective = objective
         population = population if population is not None else self._init_population()
         self.history = [self._init_state(population)]
 
     def _init_population(self):
-        n_dims = self.config["pop_size"]
-        n_samples = self.config["pop_dims"]
+        n_samples = self.config["pop_size"]
+        n_dims = self.config["pop_dims"]
         mu = self.config["new_population_mean"]
         sigma = self.config["new_population_variance"]
-        population = np.random.normal(mu, sigma, (n_dims, n_samples))
+        population = np.random.normal(mu, sigma, (n_samples, n_dims))
         _, population = alg.sort_pop(population, self._eval)
         return population
     

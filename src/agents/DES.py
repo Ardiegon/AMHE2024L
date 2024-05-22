@@ -8,18 +8,18 @@ from src.utils.misc import print_clean
 
 @dataclass
 class StateDES(BaseAgentState):
-    delta: np.ndarray 
+    delta: np.ndarray
 
 class DES(BaseAgent):
     def __init__(self, objective, population=None, config = {}) -> None:
         super().__init__(objective, population, config = default_config() | config)
     
     def _init_state(self, population):
-        return StateDES(1, population, np.ones_like(population[0]) * self.config["delta"])
+        return StateDES(0, population, np.ones_like(population[0]) * self.config["delta"])
 
     def _make_step(self, state, mi, c, f, d, h, e):
         pop_mean = alg.pop_mean(state.population)
-        q_pop_mean = self._eval(pop_mean) # ???? in paper this was written in pseudo code but does nothing XDD
+        q_pop_mean = self._eval(pop_mean) # TODO log
         _, sorted_pop = alg.sort_pop(state.population, self._eval)
         best_mean = alg.best_pop_mean(sorted_pop, mi)
         next_delta = (1 - c) * state.delta + c * (best_mean - pop_mean)
@@ -38,12 +38,12 @@ class DES(BaseAgent):
         f = self.config["scalling_factor"]
         d = self.config["small_delta"] # in paper small_delta = E||N(0,I)||, is it weirdly written? Norm of single random variable realisation should be equal to its absolute value?.......
         h = self.config["history_window_size"]
-        mi = self.config["offspring_size"]
+        mi = self.config["mi"]
         e = self.config["noise_intensity"]
 
         state = self.history[-1]
 
-        t = 1
+        t = 1  # TODO zmigrować się na state
         end_cond_value = float("inf")
         while end_cond_value >= e and t < max_n_epochs:
             next_pop, next_delta, best_mean = self._make_step(state, mi, c, f, d, h, e)

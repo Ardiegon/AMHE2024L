@@ -3,7 +3,7 @@ from math import sqrt
 def default_config(pop_dims=10):
     maxFES = pop_dims*10000
     pop_size = pop_dims*5
-    offspring_size = pop_size//2
+    mi = pop_size//2
     # window_size = int(6+3*sqrt(pop_dims))
     window_size = int(6+5*sqrt(pop_dims))
     delta_change_rate = 4/(pop_dims+4) 
@@ -19,7 +19,7 @@ def default_config(pop_dims=10):
     # run params
     "max_n_epochs": maxFES,
     "pop_size": pop_size,
-    "offspring_size": offspring_size,
+    "mi": mi,
     "history_window_size": window_size,
     "delta": 0,
     # "scalling_factor": 1/sqrt(2),

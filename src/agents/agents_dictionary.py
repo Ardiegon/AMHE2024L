@@ -1,12 +1,12 @@
 from src.agents.DES import DES
 from src.agents.NLSHADERSP import NLSHADERSP
-from src.agents.AMALGATION import AMALGATION
+from src.agents.hybridization import Hybridization
 
 
 AGENTS = {
     "des": DES,
     "nlshadersp": NLSHADERSP,
-    "amalgation": AMALGATION
+    "hybridization": Hybridization
 }
 
 
