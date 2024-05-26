@@ -1,7 +1,7 @@
 import argparse
 import numpy as np
 
-from src.agents.agents_dictionary import get_agent, agent_choices
+from src.agents.agents_dictionary import get_agent, agent_choices, get_agent_config
 from src.obj_func.function_dictionary import get_objective, objective_choices
 
 
@@ -16,12 +16,18 @@ def parse_args():
                         help="Name of an agent you want to use")
     parser.add_argument("-o", "--objective", type=str, required=True, choices=objective_choices(),
                         help="Name of an objective agent will optimize")
+    parser.add_argument("-n", "--problem_dimension", type=str, required=True,
+                        help="Number of problems dimensions")
     return parser.parse_args()
 
 def main(args):
+    np.random.seed(1)
+    problem_dimension = int(args.problem_dimension)  # TODO dodać do configa
     agent_class = get_agent(args.agent)
+    config_class = get_agent_config(args.agent)
     objective = get_objective(args.objective)
-    agent = agent_class(objective)
+    config = config_class(problem_dimension)
+    agent = agent_class(objective, config)
     agent.run()
 
 if __name__ == "__main__":
