@@ -1,3 +1,5 @@
+from src.agents.HybridizationV2 import HybridizationV2
+from src.configs.HybridizationV2Config import HybridizationV2Config
 from src.configs.NLSHADERSPConfig import NLSHADERSPConfig
 from src.configs.DESConfig import DESConfig
 from src.configs.hybridizationConfig import HybridizationConfig
@@ -9,13 +11,15 @@ from src.agents.hybridization import Hybridization
 AGENTS = {
     "des": DES,
     "nlshadersp": NLSHADERSP,
-    "hybridization": Hybridization
+    "hybridization": Hybridization,
+    "hybridization2": HybridizationV2
 }
 
 AGENTS_CONFIGS = {
     "des": DESConfig,
     "nlshadersp": NLSHADERSPConfig,
-    "hybridization": HybridizationConfig
+    "hybridization": HybridizationConfig,
+    "hybridization2": HybridizationV2Config
 }
 
 

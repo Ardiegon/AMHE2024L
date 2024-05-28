@@ -121,7 +121,7 @@ def exponential_crossover(x: np.ndarray, u: np.ndarray, Cr_i: float)->np.ndarray
     new_specimen[n1:n1+n2] = u[n1:n1+n2]
     return new_specimen
 
-# TODO przekazywać większe liczby
+# TODO przekazywać liczbę ewaluacji większe liczby
 def nlpsr(NFE: int, NFE_max: int, NPmin: int, NPmax: int)->int:
     """
     NL-SHADE-RSP
