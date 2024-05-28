@@ -138,7 +138,6 @@ class NLSHADERSP(BaseAgent):
         state = self.history[-1]
 
         while state.timestep < self.max_iters:
-            print(state.timestep)
             step_result = self._make_step(state)
             state = StateNLSHADERSP(*step_result)
             self.history.append(state)

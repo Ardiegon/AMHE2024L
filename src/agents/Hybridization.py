@@ -21,7 +21,7 @@ class StateHybridizationV2(BaseAgentState):
 
 
 
-class HybridizationV2(BaseAgent):
+class Hybridization(BaseAgent):
     def __init__(self, objective, config: NLSHADERSPConfig, population=None) -> None:
         self.H = config.history_window_size
         self.NPmin = config.population_size_min

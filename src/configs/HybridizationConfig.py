@@ -2,7 +2,7 @@ from dataclasses import dataclass
 
 
 @dataclass
-class HybridizationV2Config:
+class HybridizationConfig:
     population_size_max: int
     population_size_min: int
     problem_dimensions: int
