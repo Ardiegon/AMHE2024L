@@ -140,6 +140,6 @@ class Hybridization(BaseAgent):
             if state.timestep%100==0:
                 print_clean(f"Timestep: {state.timestep}\nCurrent Mean: {alg.pop_mean(state.population)}\nEval: {self._eval(alg.pop_mean(state.population))}")
 
-        self.dump_history_to_file(f"src/checkpoints/lastnlshadersp.npy")
+        self.dump_history_to_file(f"src/checkpoints/hybridization.npy")
         _, sorted_pop = alg.sort_pop(state.population, self._eval)
         return alg.best_pop_mean(sorted_pop, 1)

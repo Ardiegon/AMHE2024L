@@ -24,8 +24,8 @@ def main(args):
     np.random.seed(1)
     problem_dimension = int(args.problem_dimension)  # TODO dodać do configa
     agent_class = get_agent(args.agent)
-    config_class = get_agent_config(args.agent)
     objective = get_objective(args.objective)
+    config_class = get_agent_config(args.agent)
     config = config_class(problem_dimension)
     agent = agent_class(objective, config)
     agent.run()

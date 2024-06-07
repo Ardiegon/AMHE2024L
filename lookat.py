@@ -1,8 +1,8 @@
 import argparse
 import numpy as np
 
-from agents import get_agent, agent_choices
-from obj_func import get_objective, objective_choices
+from src.agents.agents_dictionary import get_agent, agent_choices, get_agent_config
+from src.obj_func.function_dictionary import get_objective, objective_choices
 from obj_func.visualiser import plot_population_on_objective
 
 def parse_args():
@@ -15,12 +15,16 @@ def parse_args():
                         help="Path to agent history")
     parser.add_argument("-i", "--interval", type=int, default=100,
                         help="Interval between drawing next samples from history")
+    parser.add_argument("-n", "--problem_dimension", type=int, required=True,
+                        help="Number of problems dimensions")
     return parser.parse_args()
 
 def main(args):
     agent_class = get_agent(args.agent)
     objective = get_objective(args.objective)
-    agent = agent_class(objective)
+    config_class = get_agent_config(args.agent)
+    config = config_class(args.problem_dimension)
+    agent = agent_class(objective, config)
     agent.load_history_from_file(args.history)
     means = agent.get_history_means()
     plot_population_on_objective(objective, means[::args.interval, :], 0, 1)
