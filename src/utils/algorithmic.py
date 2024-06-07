@@ -121,15 +121,16 @@ def exponential_crossover(x: np.ndarray, u: np.ndarray, Cr_i: float)->np.ndarray
     new_specimen[n1:n1+n2] = u[n1:n1+n2]
     return new_specimen
 
-def nlpsr(g: int, max_iters: int, NPmin: int, NPmax: int)->int:
+# TODO przekazywać liczbę ewaluacji większe liczby
+def nlpsr(NFE: int, NFE_max: int, NPmin: int, NPmax: int)->int:
     """
     NL-SHADE-RSP
     read about in article: equation 13
     Calculates new size of populations accordingly to min pop, max pop, and current timestep g.
     It's non linear and author's are explaining why exactly it is better.
     """
-    nfe_r = g/max_iters
-    return round((NPmin-NPmax)*(nfe_r**(1-nfe_r))+NPmax)
+    NFE_r = NFE / NFE_max
+    return round((NPmin-NPmax)*(NFE_r**(1-NFE_r))+NPmax)
 
 def update_Crb(g: int, max_iters: int)->int:
     """
