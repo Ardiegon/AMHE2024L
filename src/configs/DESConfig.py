@@ -22,7 +22,7 @@ class DESConfig(BaseAgentConfig):
 
     def __init__(self, problem_dimensions=10):
         self.problem_dimensions = problem_dimensions
-        self.max_iterations = problem_dimensions*10000
+        self.max_iterations = problem_dimensions*1000
         self.population_size = problem_dimensions * 5
         self.mu = self.population_size // 2
 

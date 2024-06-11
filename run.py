@@ -1,5 +1,6 @@
 import argparse
 import numpy as np
+from time import time
 
 from src.agents.agents_dictionary import get_agent, agent_choices, get_agent_config
 from src.obj_func.function_dictionary import get_objective, objective_choices
@@ -28,7 +29,10 @@ def main(args):
     config_class = get_agent_config(args.agent)
     config = config_class(problem_dimension)
     agent = agent_class(objective, config)
+    
+    start = time()
     agent.run()
+    print("Elapsed:", time()-start)
 
 if __name__ == "__main__":
     args = parse_args()

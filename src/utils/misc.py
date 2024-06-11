@@ -8,6 +8,7 @@ def create_evaluate_cec_function(function_number):
     return partial(cec_wrapper, function_number=function_number)
 
 def cec_wrapper(x, function_number):
+    # print(np.shape(x))
     mx, nx = np.shape(x)
     value = np.zeros((mx,))
     for i in range(mx):

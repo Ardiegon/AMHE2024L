@@ -9,8 +9,9 @@ setup(
     package_dir={"": "src"},  # Treat "src" directory as the source of packages
     install_requires=[
         'matplotlib==3.8.4',
-        'numpy==1.21.1'
-    ],
+        'numpy==1.21.1',
+        'PyYAML'    
+        ],
     entry_points={
         "console_scripts": []
     },

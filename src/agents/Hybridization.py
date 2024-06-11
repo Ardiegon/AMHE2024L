@@ -130,16 +130,20 @@ class Hybridization(BaseAgent):
         new_timestep = state.timestep + 1
         return new_timestep, pop, new_archive, new_archive_probability, new_NP, new_NA, new_M_F, new_Mk, next_delta
 
-    def run(self):
+    def run(self, stop_value = None):
         state = self.history[-1]
 
         while state.timestep < self.max_iters:
             step_result = self._make_step(state)
             state = StateHybridizationV2(*step_result)
             self.history.append(state)
+            if stop_value is not None:
+                if self._eval(alg.pop_mean(state.population)) - stop_value < 1e-4:
+                    break
+
             if state.timestep%100==0:
                 print_clean(f"Timestep: {state.timestep}\nCurrent Mean: {alg.pop_mean(state.population)}\nEval: {self._eval(alg.pop_mean(state.population))}")
 
         self.dump_history_to_file(f"src/checkpoints/hybridization.npy")
         _, sorted_pop = alg.sort_pop(state.population, self._eval)
-        return alg.best_pop_mean(sorted_pop, 1)
+        return alg.best_pop_mean(sorted_pop, 1), state.timestep

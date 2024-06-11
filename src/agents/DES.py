@@ -42,7 +42,7 @@ class DES(BaseAgent):
             next_pop.append((best_mean + sample + self.e * np.random.normal(0, 1, sample.shape))[None, :])
         return np.concatenate(next_pop, axis=0), next_delta, best_mean
 
-    def run(self):
+    def run(self, stop_value = None):
         state = self.history[-1]
 
         t = 1  # TODO zmigrować się na state
@@ -53,9 +53,12 @@ class DES(BaseAgent):
             t = t+1
             state = StateDES(t, next_pop, next_delta)
             self.history.append(state)
+            if stop_value is not None:
+                if self._eval(alg.pop_mean(state.population)) - stop_value < 1e-4:
+                    break
             if t%100==0:
                 print_clean(f"Timestep: {t}\nCurrent Mean: {best_mean}\nEval: {self._eval(best_mean)}\nCurrent End Value: {end_cond_value}\nEnd Value: {self.e}")
         self.dump_history_to_file(f"src/checkpoints/lastDES.npy")
         _, sorted_pop = alg.sort_pop(state.population, self._eval)
-        return alg.best_pop_mean(sorted_pop, 1)
+        return alg.best_pop_mean(sorted_pop, 1), t
     
