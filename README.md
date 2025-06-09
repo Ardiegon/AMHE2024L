@@ -1,5 +1,7 @@
 # AMHE2024L
+A hybrid differential evolution algorithm combining NL-SHADE-RSP and DES was developed to enhance optimization performance. It integrates adaptive mutation and nonlinear population reduction with directional momentum and noise-driven exploration. The hybrid approach significantly reduces execution time while maintaining or improving solution quality on CEC 2022 benchmarks.
 
+# Use 
 ### instalation
 1. Create Your python 3.10 env (conda, venv)
 2. cd AMHE2024L 
