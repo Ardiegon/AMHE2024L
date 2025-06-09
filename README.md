@@ -12,3 +12,6 @@
 
 ### visualization
 ```python lookat.py --agent des --objective almost-twin-peaks --history src/checkpoints/lastDES.npy```
+
+# Documentation (only in polish, sorry)
+Check NES_NL_SHADE_hybridization_documentation.pdf file
